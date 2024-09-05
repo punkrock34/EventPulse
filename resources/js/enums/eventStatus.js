@@ -1,0 +1,7 @@
+export const EventStatus = {
+    UPCOMING: 'UPCOMING',
+    ONGOING: 'ONGOING',
+    COMPLETED: 'COMPLETED',
+    CANCELED: 'CANCELED',
+    POSTPONED: 'POSTPONED'
+}

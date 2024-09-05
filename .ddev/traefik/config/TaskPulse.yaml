@@ -1,0 +1,104 @@
+#ddev-generated
+# If you remove the ddev-generated line above you
+# are responsible for maintaining this file. DDEV will not then
+# update it, for example if you add `additional_hostnames`, etc.
+
+http:
+  routers:
+    TaskPulse-web-80-http:
+      entrypoints:
+        - http-80
+      rule: HostRegexp(`^taskpulse\.ddev\.site$`)
+      
+      service: "TaskPulse-web-80"
+      ruleSyntax: v3
+      tls: false
+      # middlewares:
+      #   - "TaskPulse-redirectHttps"
+    TaskPulse-web-8025-http:
+      entrypoints:
+        - http-8025
+      rule: HostRegexp(`^taskpulse\.ddev\.site$`)
+      
+      service: "TaskPulse-web-8025"
+      ruleSyntax: v3
+      tls: false
+      # middlewares:
+      #   - "TaskPulse-redirectHttps"
+    TaskPulse-web-5173-http:
+      entrypoints:
+        - http-5172
+      rule: HostRegexp(`^taskpulse\.ddev\.site$`)
+      
+      service: "TaskPulse-web-5173"
+      ruleSyntax: v3
+      tls: false
+      # middlewares:
+      #   - "TaskPulse-redirectHttps"
+    
+    
+    
+    
+    TaskPulse-web-80-https:
+      entrypoints:
+        - http-443
+      rule: HostRegexp(`^taskpulse\.ddev\.site$`)
+      
+      service: "TaskPulse-web-80"
+      ruleSyntax: v3
+      
+      tls: true
+      
+    TaskPulse-web-8025-https:
+      entrypoints:
+        - http-8026
+      rule: HostRegexp(`^taskpulse\.ddev\.site$`)
+      
+      service: "TaskPulse-web-8025"
+      ruleSyntax: v3
+      
+      tls: true
+      
+    TaskPulse-web-5173-https:
+      entrypoints:
+        - http-5173
+      rule: HostRegexp(`^taskpulse\.ddev\.site$`)
+      
+      service: "TaskPulse-web-5173"
+      ruleSyntax: v3
+      
+      tls: true
+      
+    
+
+  middlewares:
+    TaskPulse-redirectHttps:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+  services:
+    TaskPulse-web-80:
+      loadbalancer:
+        servers:
+          - url: http://ddev-TaskPulse-web:80
+        
+    TaskPulse-web-8025:
+      loadbalancer:
+        servers:
+          - url: http://ddev-TaskPulse-web:8025
+        
+    TaskPulse-web-5173:
+      loadbalancer:
+        servers:
+          - url: http://ddev-TaskPulse-web:5173
+        
+    
+    
+    
+    
+
+tls:
+  certificates:
+    - certFile: /mnt/ddev-global-cache/traefik/certs/TaskPulse.crt
+      keyFile: /mnt/ddev-global-cache/traefik/certs/TaskPulse.key
