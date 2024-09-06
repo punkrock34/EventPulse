@@ -23,9 +23,10 @@
             </div>
 
             <div class="bg-base-200 p-6 rounded-box">
+                <!-- Pass the isOwner prop to EventDetailsForm -->
                 <EventDetailsForm
                     :event="localEvent"
-                    :is-owner="props.isOwner"
+                    :is-owner="isOwner"
                     @update="handleEventUpdate"
                 />
             </div>
@@ -60,7 +61,9 @@ export default {
 
         return {
             localEvent,
-            route
+            route,
+            // eslint-disable-next-line vue/no-dupe-keys
+            isOwner: props.isOwner // Make sure to expose this prop in the setup function
         }
     }
 }
