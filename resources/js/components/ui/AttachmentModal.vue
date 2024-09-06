@@ -1,6 +1,6 @@
 <template>
     <TransitionRoot appear :show="visible" as="template">
-        <Dialog as="div" @close="close" class="relative z-50">
+        <Dialog as="div" class="relative z-50" @close="close">
             <TransitionChild
                 as="template"
                 enter="duration-300 ease-out"
@@ -31,8 +31,8 @@
                                 {{ isOwner ? 'Manage Attachments' : 'View Attachments' }}
                             </DialogTitle>
                             <button
-                                @click="close"
                                 class="absolute top-4 right-4 text-neutral-content hover:text-neutral-focus transition-colors"
+                                @click="close"
                             >
                                 <svg
                                     class="h-6 w-6"

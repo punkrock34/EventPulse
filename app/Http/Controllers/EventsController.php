@@ -8,9 +8,7 @@ use Inertia\Inertia;
 
 class EventsController extends Controller
 {
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function index()
     {

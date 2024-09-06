@@ -23,10 +23,9 @@
             </div>
 
             <div class="bg-base-200 p-6 rounded-box">
-                <!-- Pass the isOwner prop to EventDetailsForm -->
                 <EventDetailsForm
                     :event="localEvent"
-                    :is-owner="isOwner"
+                    :is-owner="props.isOwner"
                     @update="handleEventUpdate"
                 />
             </div>
@@ -61,8 +60,7 @@ export default {
 
         return {
             localEvent,
-            route,
-            isOwner: props.isOwner // Make sure to expose this prop in the setup function
+            route
         }
     }
 }
