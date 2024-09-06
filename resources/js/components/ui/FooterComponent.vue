@@ -6,11 +6,6 @@
                     <h3 class="text-lg font-semibold">EventPulse</h3>
                     <p class="text-sm">&copy; {{ currentYear }} All rights reserved</p>
                 </div>
-                <nav class="flex space-x-4">
-                    <a href="#" class="hover:text-primary transition-colors">About</a>
-                    <a href="#" class="hover:text-primary transition-colors">Privacy</a>
-                    <a href="#" class="hover:text-primary transition-colors">Terms</a>
-                </nav>
             </div>
         </div>
     </footer>
