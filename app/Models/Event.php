@@ -44,4 +44,9 @@ class Event extends Model
     {
         return $this->hasMany(Attachment::class, 'event_id');
     }
+
+    public function participants()
+    {
+        return $this->hasMany(EventParticipant::class, 'event_id');
+    }
 }

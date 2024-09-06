@@ -14,32 +14,12 @@ class User extends Authenticatable
 
     protected $table = DatabaseTables::USERS->value;
 
-    /**
-     * The primary key associated with the table.
-     *
-     * @var string
-     */
     protected $primaryKey = 'id';
 
-    /**
-     * Indicates if the IDs are auto-incrementing.
-     *
-     * @var bool
-     */
     public $incrementing = true;
 
-    /**
-     * The "type" of the auto-incrementing ID.
-     *
-     * @var string
-     */
     protected $keyType = 'int';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<string, string>
-     */
     protected $fillable = [
         'id',
         'firebase_uid',
@@ -49,30 +29,29 @@ class User extends Authenticatable
         'avatar',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
 
     /**
-     * Get the events for the user.
+     * Get the events created by the user.
      */
     public function events()
     {
         return $this->hasMany(Event::class, 'owner_id');
+    }
+
+    /**
+     * Get the events the user has joined.
+     */
+    public function joinedEvents()
+    {
+        return $this->belongsToMany(Event::class, DatabaseTables::EVENT_PARTICIPANTS->value, 'user_id', 'event_id')
+            ->withTimestamps();
     }
 
     /**

@@ -10,6 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventAttachmentController;
 use App\Http\Controllers\EventCreatorController;
 use App\Http\Controllers\EventDetailsController;
+use App\Http\Controllers\EventParticipantController;
 use App\Http\Controllers\EventsController;
 use App\Http\Middleware\CheckFilePermission;
 use Illuminate\Support\Facades\Auth;
@@ -45,6 +46,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/create-event', [EventCreatorController::class, 'store'])->name('create-event.store');
     Route::put('/event/{id}', [EventDetailsController::class, 'update'])->name('event.update');
+    Route::post('/event/join', [EventParticipantController::class, 'join'])->name('event.join');
     Route::post('/logout', function () {
         Auth::logout();
 

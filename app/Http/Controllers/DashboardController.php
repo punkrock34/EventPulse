@@ -15,6 +15,7 @@ class DashboardController extends Controller
     {
         return Inertia::render('Dashboard', [
             'events' => $this->eventService->getUserEvents(),
+            'joinedEvents' => $this->eventService->getUserJoinedEvents(),
         ]);
     }
 }

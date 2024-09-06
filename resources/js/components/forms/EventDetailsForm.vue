@@ -4,7 +4,7 @@
             <div
                 class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4"
             >
-                <h2 class="card-title text-2xl">Event Details</h2>
+                <h2 class="card-title text-2xl">{{ form.title }}</h2>
                 <div class="badge badge-lg" :class="statusBadgeClass">{{ statusLabel }}</div>
             </div>
 
@@ -23,79 +23,106 @@
                 </div>
             </div>
 
-            <form class="space-y-6" @submit.prevent="handleSubmit">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <TextInput
-                        id="title"
-                        v-model="form.title"
-                        label="Event Title"
-                        placeholder="Enter event title"
-                        :error="form.errors.title"
-                        required
+            <!-- Show editable form if user is owner, otherwise display read-only details -->
+            <div v-if="isOwner">
+                <!-- Editable Form -->
+                <form class="space-y-6" @submit.prevent="handleSubmit">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <TextInput
+                            id="title"
+                            v-model="form.title"
+                            label="Event Title"
+                            placeholder="Enter event title"
+                            :error="form.errors.title"
+                            required
+                        />
+
+                        <SelectInput
+                            id="status"
+                            v-model="form.status"
+                            label="Status"
+                            :options="statusOptions"
+                            :error="form.errors.status"
+                        />
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <DateInput
+                            id="start_date"
+                            v-model="form.start_date"
+                            label="Start Date"
+                            :min-date="minDate"
+                            :error="form.errors.start_date"
+                        />
+
+                        <DateInput
+                            id="end_date"
+                            v-model="form.end_date"
+                            label="End Date"
+                            :min-date="form.start_date"
+                            :error="form.errors.end_date"
+                        />
+                    </div>
+
+                    <TextArea
+                        id="description"
+                        v-model="form.description"
+                        label="Description"
+                        placeholder="Describe your event"
+                        :error="form.errors.description"
                     />
 
-                    <SelectInput
-                        id="status"
-                        v-model="form.status"
-                        label="Status"
-                        :options="statusOptions"
-                        :error="form.errors.status"
+                    <TextArea
+                        id="notes"
+                        v-model="form.notes"
+                        label="Notes"
+                        placeholder="Any additional notes"
+                        rows="4"
+                        :error="form.errors.notes"
                     />
+
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4">
+                        <ButtonWithIcon
+                            class="btn btn-outline btn-primary w-full sm:w-auto"
+                            icon="fas fa-paperclip"
+                            label="Manage Attachments"
+                            @click="toggleModal"
+                        />
+
+                        <ButtonWithIcon
+                            type="submit"
+                            :loading="form.processing"
+                            :disabled="form.processing"
+                            icon="fas fa-save"
+                            label="Save Changes"
+                            custom-class="btn btn-primary w-full sm:w-auto"
+                        />
+                    </div>
+                </form>
+            </div>
+            <div v-else>
+                <!-- Read-Only Event Details -->
+                <div class="space-y-6">
+                    <div class="bg-base-200 p-4 rounded-box">
+                        <h3 class="font-semibold text-lg mb-2">Description</h3>
+                        <p>{{ form.description || 'No description provided.' }}</p>
+                    </div>
+
+                    <div class="bg-base-200 p-4 rounded-box">
+                        <h3 class="font-semibold text-lg mb-2">Notes</h3>
+                        <p>{{ form.notes || 'No additional notes.' }}</p>
+                    </div>
+
+                    <div class="flex justify-end pt-4">
+                        <ButtonWithIcon
+                            class="btn btn-outline btn-primary"
+                            icon="fas fa-paperclip"
+                            label="View Attachments"
+                            @click="toggleModal"
+                        />
+                    </div>
                 </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <DateInput
-                        id="start_date"
-                        v-model="form.start_date"
-                        label="Start Date"
-                        :min-date="minDate"
-                        :error="form.errors.start_date"
-                    />
-
-                    <DateInput
-                        id="end_date"
-                        v-model="form.end_date"
-                        label="End Date"
-                        :min-date="form.start_date"
-                        :error="form.errors.end_date"
-                    />
-                </div>
-
-                <TextArea
-                    id="description"
-                    v-model="form.description"
-                    label="Description"
-                    placeholder="Describe your event"
-                    :error="form.errors.description"
-                />
-
-                <TextArea
-                    id="notes"
-                    v-model="form.notes"
-                    label="Notes"
-                    placeholder="Any additional notes"
-                    rows="4"
-                    :error="form.errors.notes"
-                />
-
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4">
-                    <ButtonWithIcon
-                        class="btn btn-outline btn-primary w-full sm:w-auto"
-                        icon="fas fa-paperclip"
-                        label="Manage Attachments"
-                        @click="toggleModal"
-                    />
-
-                    <ButtonWithIcon
-                        type="submit"
-                        :loading="form.processing"
-                        :disabled="form.processing"
-                        icon="fas fa-save"
-                        label="Save Changes"
-                        custom-class="btn btn-primary w-full sm:w-auto"
-                    />
-                </div>
-            </form>
+            </div>
 
             <SpanSuccess :success="form.success" />
             <SpanError :error="form.errors.error" />
@@ -104,6 +131,7 @@
                 :visible="showModal"
                 :attachments="form.attachments"
                 :event-id="form.id"
+                :is-owner="isOwner"
                 @close="toggleModal"
             />
         </div>
@@ -111,9 +139,9 @@
 </template>
 
 <script>
-import { useForm } from '@inertiajs/vue3'
-import { ref, computed, watch } from 'vue'
 import { route } from 'ziggy-js'
+import { useForm } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
 import TextInput from '@/components/inputs/TextInput.vue'
 import TextArea from '@/components/inputs/TextArea.vue'
 import SelectInput from '@/components/inputs/SelectInput.vue'
@@ -140,9 +168,12 @@ export default {
         event: {
             type: Object,
             required: true
+        },
+        isOwner: {
+            type: Boolean,
+            required: true
         }
     },
-    emits: ['submit'],
     setup(props) {
         const form = useForm({
             id: props.event.id,
@@ -192,23 +223,9 @@ export default {
 
         const statusLabel = computed(() => formatStatusLabel(form.status))
 
-        watch(
-            () => props.event,
-            (newEvent) => {
-                Object.keys(form).forEach((key) => {
-                    if (key in newEvent) {
-                        form[key] = newEvent[key]
-                    }
-                })
-                if (newEvent.end_date) {
-                    form.end_date = new Date(newEvent.end_date).toISOString().split('T')[0]
-                }
-                if (newEvent.start_date) {
-                    form.start_date = new Date(newEvent.start_date).toISOString().split('T')[0]
-                }
-            },
-            { deep: true }
-        )
+        function toggleModal() {
+            showModal.value = !showModal.value
+        }
 
         function handleSubmit() {
             form.put(route('event.update', form.id), {
@@ -237,10 +254,6 @@ export default {
             })
         }
 
-        function toggleModal() {
-            showModal.value = !showModal.value
-        }
-
         return {
             form,
             minDate,
@@ -249,10 +262,10 @@ export default {
             formattedEndDate,
             statusOptions,
             showModal,
-            handleSubmit,
             toggleModal,
             statusBadgeClass,
-            statusLabel
+            statusLabel,
+            handleSubmit
         }
     }
 }

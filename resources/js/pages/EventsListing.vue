@@ -71,10 +71,7 @@
                                         </button>
                                         <button
                                             class="btn btn-sm btn-secondary"
-                                            :disabled="
-                                                event.status === EventStatus.COMPLETED ||
-                                                event.status === EventStatus.CANCELLED
-                                            "
+                                            :disabled="!canJoinEvent(event)"
                                             @click="applyForEvent(event)"
                                         >
                                             Apply
@@ -102,6 +99,7 @@ import AuthenticatedLayout from '@/components/layouts/AuthenticatedLayout.vue'
 import SnackbarNotification from '@/components/ui/SnackbarNotification.vue'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 import { EventStatus } from '@/enums/eventStatus'
+import axios from 'axios'
 
 export default {
     name: 'EventsListing',
@@ -153,11 +151,9 @@ export default {
         const fetchEvents = async () => {
             try {
                 isLoading.value = true
-                // Replace this with your actual API call
                 const response = await fetch(route('events.list'))
                 if (!response.ok) throw new Error('Failed to fetch events')
                 allEvents.value = await response.json()
-                console.log(allEvents.value)
                 filterEvents()
             } catch (e) {
                 error.value = 'Failed to load events. Please try again later.'
@@ -185,14 +181,28 @@ export default {
             router.visit(route('event.index', { id: event.id }))
         }
 
-        const applyForEvent = (event) => {
+        const canJoinEvent = (event) => {
+            return event.status !== EventStatus.COMPLETED && event.status !== EventStatus.CANCELLED
+        }
+
+        const applyForEvent = async (event) => {
             if (event.status === EventStatus.CANCELLED) {
                 snackbar.value.show('This event has been cancelled', 'error')
+                return
             } else if (event.status === EventStatus.COMPLETED) {
                 snackbar.value.show('This event has already ended', 'error')
-            } else {
-                console.log(`Applying for event: ${event.title}`)
-                snackbar.value.show(`Successfully applied for ${event.title}`)
+                return
+            }
+
+            isLoading.value = true
+            try {
+                const response = await axios.post(route('event.join'), { event_id: event.id })
+                snackbar.value.show(response.data.message, 'success')
+                fetchEvents()
+            } catch (e) {
+                snackbar.value.show(e.response.data.message || 'Failed to apply for event', 'error')
+            } finally {
+                isLoading.value = false
             }
         }
 
@@ -212,6 +222,7 @@ export default {
             formatStatus,
             filterEvents,
             viewEvent,
+            canJoinEvent,
             applyForEvent
         }
     }

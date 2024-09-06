@@ -8,8 +8,9 @@ use Inertia\Inertia;
 
 class EventsController extends Controller
 {
-    public function __construct(
-    ) {}
+    public function __construct()
+    {
+    }
 
     public function index()
     {
@@ -18,6 +19,14 @@ class EventsController extends Controller
 
     public function list()
     {
-        return response()->json(Event::where('owner_id', '!=', Auth::id())->get()->toArray());
+        $user = Auth::user();
+
+        $events = Event::where('owner_id', '!=', $user->id)
+            ->whereDoesntHave('participants', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->get();
+
+        return response()->json($events->toArray());
     }
 }

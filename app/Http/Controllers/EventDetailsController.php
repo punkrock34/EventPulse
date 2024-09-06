@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EventUpdateRequest;
 use App\Services\EventService;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class EventDetailsController extends Controller
@@ -18,6 +19,7 @@ class EventDetailsController extends Controller
 
         return Inertia::render('EventDetails', [
             'event' => $event->toArray(),
+            'isOwner' => $event->owner_id === Auth::id(),
         ]);
     }
 

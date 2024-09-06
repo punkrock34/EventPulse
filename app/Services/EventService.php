@@ -14,7 +14,7 @@ class EventService
     public function getEvent(int $id): Event
     {
         try {
-            return Event::with('attachments')->findOrFail($id);
+            return Event::with(['attachments', 'participants.user'])->findOrFail($id);
         } catch (ModelNotFoundException $e) {
             Log::error("Event not found: {$e->getMessage()}");
             throw new EventNotFoundException;
@@ -24,12 +24,22 @@ class EventService
         }
     }
 
-    public function getUserEvents(): array
+    public function getUserEvents()
     {
         try {
-            return Auth::user()->events->toArray();
+            return Auth::user()->events()->with(['attachments', 'participants.user'])->get();
         } catch (\Exception $e) {
             Log::error("Error fetching user events: {$e->getMessage()}");
+            throw new UnexpectedErrorException;
+        }
+    }
+
+    public function getUserJoinedEvents()
+    {
+        try {
+            return Auth::user()->joinedEvents()->with('participants.user')->get();
+        } catch (\Exception $e) {
+            Log::error("Error fetching user joined events: {$e->getMessage()}");
             throw new UnexpectedErrorException;
         }
     }
